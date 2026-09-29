@@ -87,7 +87,7 @@ class ProfitAllocationAdmin(admin.ModelAdmin):
     def has_delete_permission(self, request, obj=None):
         return False
 
-    @admin.action(description="Mark selected allocations as paid")
+    @admin.action(description="Mark selected allocations as paid", permissions=["change"])
     def mark_paid(self, request, queryset):
         updated = queryset.filter(status=ProfitAllocation.Status.OWED).update(
             status=ProfitAllocation.Status.PAID, paid_at=timezone.now()

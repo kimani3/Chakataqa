@@ -291,3 +291,22 @@ class DepositWithoutEmailTests(TestCase):
         self.assertContains(response, "no email address")
         initialize.assert_not_called()
         self.assertFalse(Deposit.objects.exists())
+
+
+class AdminPermissionTests(TestCase):
+    def actions_for(self, *codenames):
+        from django.contrib import admin
+        from django.contrib.auth.models import Permission
+        from django.test import RequestFactory
+
+        user = User.objects.create_user("staff", password="pw-12345!", is_staff=True)
+        user.user_permissions.add(*Permission.objects.filter(codename__in=codenames))
+        request = RequestFactory().get("/")
+        request.user = User.objects.get(pk=user.pk)
+        return admin.site._registry[ProfitAllocation].get_actions(request)
+
+    def test_view_only_staff_cannot_mark_paid(self):
+        self.assertNotIn("mark_paid", self.actions_for("view_profitallocation"))
+
+    def test_staff_with_change_permission_can_mark_paid(self):
+        self.assertIn("mark_paid", self.actions_for("view_profitallocation", "change_profitallocation"))
