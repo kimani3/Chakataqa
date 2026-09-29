@@ -1,0 +1,21 @@
+{% extends "investors/base_portal.html" %}
+
+{% block portal_title %}Deposit{% endblock %}
+
+{% block portal_content %}
+<div class="narrow">
+  <form class="card stack" method="post">
+    {% csrf_token %}
+    <div>
+      <h1 class="h2">Make a deposit</h1>
+      <p class="muted">You'll be taken to Paystack to pay securely by card, M-Pesa or bank. Your deposit is added to your capital once Paystack confirms it.</p>
+    </div>
+    <div class="field{% if form.amount.errors %} has-error{% endif %}">
+      <label for="{{ form.amount.id_for_label }}">Amount ({{ currency }})</label>
+      {{ form.amount }}
+      {% for error in form.amount.errors %}<small class="error">{{ error }}</small>{% endfor %}
+    </div>
+    <button class="btn btn-primary btn-block" type="submit">Continue to Paystack</button>
+  </form>
+</div>
+{% endblock %}

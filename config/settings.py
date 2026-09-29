@@ -40,7 +40,9 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
+    "django.contrib.humanize",
     "core",
+    "investors",
 ]
 
 MIDDLEWARE = [
@@ -65,6 +67,7 @@ TEMPLATES = [
                 "django.template.context_processors.request",
                 "django.contrib.auth.context_processors.auth",
                 "django.contrib.messages.context_processors.messages",
+                "core.context_processors.site_nav",
             ],
         },
     },
@@ -121,6 +124,16 @@ USE_TZ = True
 STATIC_URL = "static/"
 STATICFILES_DIRS = [BASE_DIR / "static"]
 STATIC_ROOT = BASE_DIR / "staticfiles"
+
+LOGIN_URL = "investors:login"
+LOGIN_REDIRECT_URL = "investors:dashboard"
+LOGOUT_REDIRECT_URL = "core:index"
+
+# Paystack (https://dashboard.paystack.com/#/settings/developers)
+PAYSTACK_SECRET_KEY = os.environ.get("PAYSTACK_SECRET_KEY", "")
+PAYSTACK_PUBLIC_KEY = os.environ.get("PAYSTACK_PUBLIC_KEY", "")
+PAYSTACK_CURRENCY = os.environ.get("PAYSTACK_CURRENCY", "KES")
+PAYSTACK_BASE_URL = "https://api.paystack.co"
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field

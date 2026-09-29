@@ -1,0 +1,22 @@
+{% extends "investors/base_portal.html" %}
+
+{% block portal_title %}Sign in{% endblock %}
+
+{% block portal_content %}
+<div class="narrow">
+  <form class="card stack" method="post">
+    {% csrf_token %}
+    <div>
+      <span class="eyebrow">Investor portal</span>
+      <h1 class="h2">Sign in</h1>
+      <p class="muted">Track your capital, share and returns. Accounts are created by the Chakataqa team.</p>
+    </div>
+    {% if form.non_field_errors %}
+      {% for error in form.non_field_errors %}<p class="alert alert-error">{{ error }}</p>{% endfor %}
+    {% endif %}
+    {% for field in form %}{% include "investors/_field.html" %}{% endfor %}
+    <input type="hidden" name="next" value="{{ next }}">
+    <button class="btn btn-primary btn-block" type="submit">Sign in</button>
+  </form>
+</div>
+{% endblock %}

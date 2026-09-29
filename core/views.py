@@ -20,7 +20,6 @@ def index(request):
 
     context = {
         "form": form,
-        "nav_links": content.NAV_LINKS,
         "stats": content.STATS,
         "steps": content.STEPS,
         "services": content.SERVICES,

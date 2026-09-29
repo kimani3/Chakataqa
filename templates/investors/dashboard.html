@@ -1,0 +1,117 @@
+{% extends "investors/base_portal.html" %}
+{% load humanize %}
+
+{% block portal_title %}Dashboard{% endblock %}
+
+{% block portal_content %}
+<div class="portal-head">
+  <h1 class="h2">Your portfolio</h1>
+  <a class="btn btn-primary" href="{% url 'investors:deposit' %}">Deposit</a>
+</div>
+
+<div class="tiles">
+  <div class="tile">
+    <span class="tile-label">Principal</span>
+    <span class="tile-value">{{ currency }} {{ principal|floatformat:2|intcomma }}</span>
+    <span class="tile-note">Confirmed deposits</span>
+  </div>
+  <div class="tile">
+    <span class="tile-label">Your share</span>
+    <span class="tile-value">{{ share_percent|floatformat:2 }}%</span>
+    <span class="tile-note">Of all investor capital</span>
+  </div>
+  <div class="tile">
+    <span class="tile-label">Total profit earned</span>
+    <span class="tile-value">{{ currency }} {{ earned|floatformat:2|intcomma }}</span>
+    <span class="tile-note">{{ return_percent|floatformat:2 }}% return on principal</span>
+  </div>
+  <div class="tile">
+    <span class="tile-label">Profit owed to you</span>
+    <span class="tile-value">{{ currency }} {{ owed|floatformat:2|intcomma }}</span>
+    <span class="tile-note">{{ currency }} {{ paid|floatformat:2|intcomma }} paid out so far</span>
+  </div>
+</div>
+
+<div class="card chart-card">
+  <h2 class="h3">Growth over time</h2>
+  {% if chart.labels %}
+    <div class="chart-wrap"><canvas id="growth-chart" aria-label="Cumulative principal and profit by month" role="img"></canvas></div>
+    {{ chart|json_script:"growth-data" }}
+  {% else %}
+    <p class="muted">Your chart will appear after your first confirmed deposit.</p>
+  {% endif %}
+</div>
+
+<div class="portal-tables">
+  <div class="card">
+    <h2 class="h3">Profit allocations</h2>
+    {% if allocations %}
+      <div class="table-scroll"><table>
+        <thead><tr><th>Period</th><th>Your capital</th><th>Share</th><th class="num">Amount</th><th>Status</th></tr></thead>
+        <tbody>
+          {% for a in allocations %}
+            <tr>
+              <td>{{ a.distribution.title }}<br><small class="muted">as of {{ a.distribution.as_of }}</small></td>
+              <td>{{ a.capital_at_time|floatformat:2|intcomma }}</td>
+              <td>{{ a.share_percent|floatformat:2 }}%</td>
+              <td class="num">{{ a.amount|floatformat:2|intcomma }}</td>
+              <td><span class="badge badge-{{ a.status }}">{{ a.get_status_display }}</span></td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table></div>
+    {% else %}
+      <p class="muted">No profit has been declared yet.</p>
+    {% endif %}
+  </div>
+
+  <div class="card">
+    <h2 class="h3">Deposits</h2>
+    {% if deposits %}
+      <div class="table-scroll"><table>
+        <thead><tr><th>Date</th><th>Reference</th><th class="num">Amount</th><th>Status</th></tr></thead>
+        <tbody>
+          {% for d in deposits %}
+            <tr>
+              <td>{{ d.paid_at|default:d.created_at|date:"j M Y" }}</td>
+              <td><code>{{ d.reference }}</code></td>
+              <td class="num">{{ d.currency }} {{ d.amount|floatformat:2|intcomma }}</td>
+              <td><span class="badge badge-{{ d.status }}">{{ d.get_status_display }}</span></td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table></div>
+    {% else %}
+      <p class="muted">No deposits yet. <a class="text-link" href="{% url 'investors:deposit' %}">Make your first deposit</a>.</p>
+    {% endif %}
+  </div>
+</div>
+
+{% if chart.labels %}
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<script>
+  (function () {
+    var data = JSON.parse(document.getElementById("growth-data").textContent);
+    var css = getComputedStyle(document.documentElement);
+    var dark = css.getPropertyValue("--color-dark").trim();
+    var green = css.getPropertyValue("--color-primary").trim();
+    new Chart(document.getElementById("growth-chart"), {
+      type: "line",
+      data: {
+        labels: data.labels,
+        datasets: [
+          { label: "Principal", data: data.principal, borderColor: dark, backgroundColor: dark, stepped: true, borderWidth: 2 },
+          { label: "Profit earned", data: data.profit, borderColor: green, backgroundColor: green, stepped: true, borderWidth: 2 }
+        ]
+      },
+      options: {
+        maintainAspectRatio: false,
+        interaction: { mode: "index", intersect: false },
+        plugins: { legend: { position: "bottom" } },
+        scales: { y: { beginAtZero: true, ticks: { callback: function (v) { return v.toLocaleString(); } } } }
+      }
+    });
+  })();
+</script>
+{% endif %}
+{% endblock %}

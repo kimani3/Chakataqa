@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+
+{% block title %}{% block portal_title %}Investor portal{% endblock %} · Chakataqa{% endblock %}
+
+{% block content %}
+<section class="portal">
+  <div class="container">
+    {% if user.is_authenticated %}
+      <div class="portal-bar">
+        <div>
+          <span class="eyebrow">Investor portal</span>
+          <p class="portal-user">Signed in as <strong>{{ user.get_full_name|default:user.username }}</strong></p>
+        </div>
+        <nav class="portal-nav">
+          <a href="{% url 'investors:dashboard' %}">Dashboard</a>
+          <a href="{% url 'investors:deposit' %}">Deposit</a>
+          <a href="{% url 'investors:password_change' %}">Password</a>
+          <form method="post" action="{% url 'investors:logout' %}">
+            {% csrf_token %}
+            <button type="submit" class="link-button">Log out</button>
+          </form>
+        </nav>
+      </div>
+    {% endif %}
+    {% for message in messages %}
+      <p class="alert alert-{{ message.tags }}">{{ message }}</p>
+    {% endfor %}
+    {% block portal_content %}{% endblock %}
+  </div>
+</section>
+{% endblock %}
