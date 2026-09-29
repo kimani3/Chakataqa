@@ -1,0 +1,120 @@
+{% extends "base.html" %}
+
+{% block content %}
+<section class="hero">
+  <div class="container hero-grid">
+    <div>
+      <span class="eyebrow">Plastic recycling, reimagined</span>
+      <h1>Turning plastic waste into <span class="accent">new value</span></h1>
+      <p class="lead">We collect, sort and process plastic waste into high-quality recycled material, keeping it out of landfills, rivers and oceans.</p>
+      <div class="hero-actions">
+        <a class="btn btn-primary" href="#contact">Book a pickup</a>
+        <a class="btn btn-outline" href="#how-it-works">See how it works</a>
+      </div>
+    </div>
+    <div class="hero-visual" aria-hidden="true">
+      <div class="hero-card">
+        <span class="hero-card-icon">♻</span>
+        <strong>120+ tonnes</strong>
+        <span>of plastic recovered and counting</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="impact" class="stats">
+  <div class="container stats-grid">
+    {% for stat in stats %}
+      <div class="stat">
+        <span class="stat-value">{{ stat.value }}</span>
+        <span class="stat-label">{{ stat.label }}</span>
+      </div>
+    {% endfor %}
+  </div>
+</section>
+
+<section id="how-it-works" class="section">
+  <div class="container">
+    <div class="section-head">
+      <span class="eyebrow">How it works</span>
+      <h2>From waste to resource in four steps</h2>
+    </div>
+    <div class="steps-grid">
+      {% for step in steps %}
+        <article class="card step">
+          <span class="step-number">{{ step.number }}</span>
+          <h3>{{ step.title }}</h3>
+          <p>{{ step.text }}</p>
+        </article>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+
+<section id="services" class="section section-alt">
+  <div class="container">
+    <div class="section-head">
+      <span class="eyebrow">What we do</span>
+      <h2>Services for homes, businesses and manufacturers</h2>
+    </div>
+    <div class="services-grid">
+      {% for service in services %}
+        <article class="card service">
+          <span class="service-icon" aria-hidden="true">
+            {% if service.icon == "truck" %}🚚{% elif service.icon == "factory" %}🏭{% else %}🌿{% endif %}
+          </span>
+          <h3>{{ service.title }}</h3>
+          <p>{{ service.text }}</p>
+        </article>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+
+<section id="about" class="section">
+  <div class="container about-grid">
+    <div>
+      <span class="eyebrow">Our mission</span>
+      <h2>A cleaner environment and fair livelihoods</h2>
+      <p>Chakataqa is building a circular plastic economy. We partner with local collectors, pay them fairly for what they recover, and give recycled plastic a second life as raw material for local industry.</p>
+      <ul class="checklist">
+        <li>Fair pay for waste collectors</li>
+        <li>Traceable, measurable impact</li>
+        <li>Locally made recycled material</li>
+      </ul>
+    </div>
+    <div class="testimonials">
+      {% for t in testimonials %}
+        <figure class="card testimonial">
+          <blockquote>“{{ t.quote }}”</blockquote>
+          <figcaption><strong>{{ t.name }}</strong><span>{{ t.role }}</span></figcaption>
+        </figure>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+
+<section id="contact" class="section cta">
+  <div class="container contact-grid">
+    <div>
+      <span class="eyebrow eyebrow-light">Get in touch</span>
+      <h2>Ready to recycle with us?</h2>
+      <p>Book a pickup, become a partner, or ask about recycled material. We'll respond within one business day.</p>
+    </div>
+    <form class="card contact-form" method="post" action="{% url 'core:index' %}#contact" novalidate>
+      {% csrf_token %}
+      {% if messages %}
+        {% for message in messages %}<p class="alert alert-{{ message.tags }}">{{ message }}</p>{% endfor %}
+      {% endif %}
+      {% for field in form %}
+        <div class="field{% if field.errors %} has-error{% endif %}">
+          <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+          {{ field }}
+          {% for error in field.errors %}<small class="error">{{ error }}</small>{% endfor %}
+        </div>
+      {% endfor %}
+      <button class="btn btn-primary btn-block" type="submit">Send message</button>
+    </form>
+  </div>
+</section>
+{% endblock %}

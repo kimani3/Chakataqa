@@ -1,0 +1,56 @@
+{% load static %}<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block title %}Chakataqa — Plastic recycling{% endblock %}</title>
+  <meta name="description" content="{% block description %}Chakataqa collects, processes and remakes plastic waste into valuable raw material.{% endblock %}">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{% static 'css/styles.css' %}">
+</head>
+<body>
+  <header class="site-header">
+    <div class="container nav">
+      <a class="brand" href="{% url 'core:index' %}">
+        <span class="brand-mark" aria-hidden="true">♻</span> Chakataqa
+      </a>
+      <button class="nav-toggle" aria-expanded="false" aria-controls="nav-menu" aria-label="Open menu">
+        <span></span><span></span><span></span>
+      </button>
+      <nav id="nav-menu" class="nav-menu">
+        {% for href, label in nav_links %}
+          <a href="{{ href }}">{{ label }}</a>
+        {% endfor %}
+        <a class="btn btn-primary btn-sm" href="#contact">Book a pickup</a>
+      </nav>
+    </div>
+  </header>
+
+  <main>{% block content %}{% endblock %}</main>
+
+  <footer class="site-footer">
+    <div class="container footer-grid">
+      <div>
+        <a class="brand brand-light" href="{% url 'core:index' %}">
+          <span class="brand-mark" aria-hidden="true">♻</span> Chakataqa
+        </a>
+        <p class="muted">Turning plastic waste into value for communities and industry.</p>
+      </div>
+      <div>
+        <h4>Explore</h4>
+        {% for href, label in nav_links %}<a href="{{ href }}">{{ label }}</a>{% endfor %}
+      </div>
+      <div>
+        <h4>Contact</h4>
+        <a href="mailto:hello@chakataqa.com">hello@chakataqa.com</a>
+        <span class="muted">Nairobi, Kenya</span>
+      </div>
+    </div>
+    <div class="container footer-bottom muted">© {% now "Y" %} Chakataqa. All rights reserved.</div>
+  </footer>
+
+  <script src="{% static 'js/main.js' %}" defer></script>
+</body>
+</html>
