@@ -242,10 +242,28 @@ class AccessTests(TestCase):
             response, f"{reverse('investors:login')}?next={reverse('investors:dashboard')}"
         )
 
-    def test_non_investor_forbidden(self):
+    def test_non_investor_sees_switch_account_page(self):
         user = User.objects.create_user("visitor", password="pw-12345!")
         self.client.force_login(user)
-        self.assertEqual(self.client.get(reverse("investors:dashboard")).status_code, 403)
+        response = self.client.get(reverse("investors:dashboard"))
+        self.assertContains(response, "visitor", status_code=403)
+        self.assertContains(response, "Sign in as a different user", status_code=403)
+
+    def test_signed_in_non_investor_can_reach_login_form(self):
+        User.objects.create_superuser("admin", "admin@example.com", "pw-12345!")
+        self.client.login(username="admin", password="pw-12345!")
+        response = self.client.get(reverse("investors:login"))
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'name="password"')
+
+    def test_switch_account_logs_out_to_login(self):
+        User.objects.create_user("visitor", password="pw-12345!")
+        self.client.login(username="visitor", password="pw-12345!")
+        response = self.client.post(
+            reverse("investors:logout"), {"next": reverse("investors:login")}
+        )
+        self.assertRedirects(response, reverse("investors:login"))
+        self.assertNotIn("_auth_user_id", self.client.session)
 
     def test_investor_sees_only_own_data(self):
         alice = make_investor("alice")

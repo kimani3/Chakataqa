@@ -12,9 +12,7 @@ urlpatterns = [
     path("paystack/webhook/", views.paystack_webhook, name="paystack_webhook"),
     path(
         "login/",
-        auth_views.LoginView.as_view(
-            template_name="investors/login.html", redirect_authenticated_user=True
-        ),
+        auth_views.LoginView.as_view(template_name="investors/login.html"),
         name="login",
     ),
     path("logout/", auth_views.LogoutView.as_view(), name="logout"),

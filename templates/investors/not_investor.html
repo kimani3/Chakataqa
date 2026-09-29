@@ -1,0 +1,22 @@
+{% extends "investors/base_portal.html" %}
+
+{% block portal_title %}Not an investor account{% endblock %}
+
+{% block portal_content %}
+<div class="narrow">
+  <div class="card stack">
+    <div>
+      <h1 class="h2">Not an investor account</h1>
+      <p class="muted">You're signed in as <strong>{{ user.username }}</strong>, which isn't an investor account. If you're signed in to the admin site, sign out here and sign in with your investor account.</p>
+    </div>
+    <form method="post" action="{% url 'investors:logout' %}">
+      {% csrf_token %}
+      <input type="hidden" name="next" value="{% url 'investors:login' %}">
+      <button class="btn btn-primary btn-block" type="submit">Sign in as a different user</button>
+    </form>
+    {% if user.is_staff %}
+      <p class="muted">To give this account access, add it to the <strong>Investors</strong> group in the <a class="text-link" href="{% url 'admin:auth_user_change' user.pk %}">admin</a>.</p>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}

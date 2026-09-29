@@ -1,9 +1,9 @@
 import json
+from functools import wraps
 
 from django.conf import settings
 from django.contrib import messages
-from django.contrib.auth.decorators import login_required, user_passes_test
-from django.core.exceptions import PermissionDenied
+from django.contrib.auth.decorators import login_required
 from django.http import HttpResponse, HttpResponseBadRequest
 from django.shortcuts import redirect, render
 from django.urls import reverse
@@ -16,13 +16,16 @@ from .models import Deposit
 from .services import apply_paystack_result, is_investor, portfolio, to_subunit
 
 
-def _require_investor(user):
-    if not is_investor(user):
-        raise PermissionDenied
-    return True
+def investor_required(view):
+    """Show signed-in non-investors (e.g. an admin) who they are and how to switch accounts."""
 
+    @wraps(view)
+    def wrapper(request, *args, **kwargs):
+        if not is_investor(request.user):
+            return render(request, "investors/not_investor.html", status=403)
+        return view(request, *args, **kwargs)
 
-investor_required = user_passes_test(_require_investor)
+    return wrapper
 
 
 @login_required
