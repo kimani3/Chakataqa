@@ -56,14 +56,65 @@ stays equal to what the investor deposited.
    browser before returning to the site.
 3. Set the environment variables below.
 
+## Deploy to Render
+
+`render.yaml` describes the whole setup (a Blueprint): a Python web service
+running gunicorn, plus a Render Postgres database. `build.sh` runs on every
+deploy: it installs packages, collects static files, applies migrations and
+creates the first admin account.
+
+1. **Push this code to GitHub.** Render deploys from the branch you pick in
+   step 3 (usually `main`). Every later push to that branch redeploys.
+2. **Create a Render account** at https://dashboard.render.com and connect
+   your GitHub account when asked.
+3. **New → Blueprint**, pick this repository and branch. Render reads
+   `render.yaml` and lists the `chakataqa` web service and the `chakataqa-db`
+   database.
+4. **Fill in the values Render asks for:**
+   - `PAYSTACK_SECRET_KEY`, `PAYSTACK_PUBLIC_KEY` — start with the test keys.
+   - `DJANGO_SUPERUSER_USERNAME`, `DJANGO_SUPERUSER_EMAIL`,
+     `DJANGO_SUPERUSER_PASSWORD` — your admin login.
+
+   `DJANGO_SECRET_KEY` is generated and `DATABASE_URL` is filled in from the
+   database, so you don't set them.
+5. **Click Apply** and watch the deploy log. It ends with
+   "Superuser created successfully" and then "Your service is live".
+6. **Open the site** at `https://chakataqa.onrender.com` (Render shows the
+   exact URL at the top of the service page) and sign in at `/admin/`.
+7. **Remove `DJANGO_SUPERUSER_PASSWORD`** from the service's *Environment*
+   tab. The admin account stays; change its password later at `/admin/`.
+8. **Point Paystack at the site:** in the Paystack dashboard set the webhook URL
+   to `https://chakataqa.onrender.com/investors/paystack/webhook/`, then make a
+   test deposit from an investor account.
+
+**Custom domain (optional):** add it under the service's *Settings → Custom
+Domains*, follow Render's DNS instructions, then add the domain to
+`DJANGO_ALLOWED_HOSTS` (e.g. `chakataqa.com,www.chakataqa.com`) and update
+the Paystack webhook URL.
+
+**Free plan limits:** the web service sleeps after about 15 minutes without
+visits and takes up to a minute to wake. A free Postgres database expires 30
+days after creation (then 14 days' grace before deletion), so upgrade the
+database to a paid plan before switching to live Paystack keys or storing
+real investor data. Both run in the Frankfurt region; change `region` in
+`render.yaml` before the first deploy if you want another one.
+
+**When something breaks,** open the service's *Logs* tab. Build errors appear
+there during deploy, and server errors are printed there at runtime.
+
 ## Environment variables
 
 - `DJANGO_SECRET_KEY` — required in production
 - `DJANGO_DEBUG` — set to `0` in production
-- `DJANGO_ALLOWED_HOSTS` — comma-separated host names
+- `DJANGO_ALLOWED_HOSTS` — comma-separated host names (Render's own
+  `*.onrender.com` host is added automatically)
+- `DATABASE_URL` — Postgres connection URL; without it the app uses `db.sqlite3`
 - `PAYSTACK_SECRET_KEY` — `sk_test_...` or `sk_live_...`
 - `PAYSTACK_PUBLIC_KEY` — `pk_test_...` or `pk_live_...`
 - `PAYSTACK_CURRENCY` — defaults to `KES`; must be enabled on your Paystack account
+- `DJANGO_SUPERUSER_USERNAME`, `DJANGO_SUPERUSER_EMAIL`,
+  `DJANGO_SUPERUSER_PASSWORD` — if the password is set, `build.sh` creates
+  this admin account (skipped when it already exists)
 
 ## Tests
 
